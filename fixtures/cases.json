@@ -1,0 +1,22 @@
+{
+  "good": {
+    "project.toml": [
+      "package",
+      "dependencies",
+      "settings",
+      "products",
+      "name"
+    ],
+    "dotted.toml": [
+      "site.\"display.name\"",
+      "\"quoted.key\"",
+      "database.pool",
+      "1.\"a b\"",
+      "2.'c d'"
+    ]
+  },
+  "bad": [
+    "broken.toml",
+    "unclosed.toml"
+  ]
+}

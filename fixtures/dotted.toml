@@ -1,0 +1,9 @@
+# Dotted and quoted keys preserve their exact source spelling
+site."display.name" = "日本語"
+"quoted.key" = { enabled = false, values = [1, 2, 3] }
+123abc = "a bare key may start with a digit"
+[database.pool]
+size = 4
+
+[1."a b"]
+2.'c d' = 3

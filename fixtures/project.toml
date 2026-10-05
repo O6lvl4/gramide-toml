@@ -1,0 +1,28 @@
+# A real-world shape with non-ASCII source before symbols: 日本語
+[package]
+name = "fixture"
+version = "0.1.0"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+engine = { git = "https://example.com/engine", version = "1.0" }
+
+[settings]
+enabled = true
+ports = [8000, 8001, 8002,]
+limits = { retries = 3, timeout = 1.5 }
+started = 2026-10-05T09:30:00Z
+local_time = 09:30:00.25
+signed = -1_000
+hex = 0xDEAD_BEEF
+infinite = +inf
+multiline = """
+A multi-line description
+with an escaped \"quote\" and 日本語
+"""
+raw = 'C:\Users\example'
+
+[[products]]
+name = "first"
+[[products]]
+name = "second"

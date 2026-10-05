@@ -1,0 +1,32 @@
+// Original TOML core syntax tree. Duplicate-key and calendar validation are
+// semantic checks, not claimed by this read-only grammar.
+import gramide.parser
+import gramide.parser.{ tok, lit, r, seq, alt, rep, opt, wrap, field, grammar, recover, lits, ahead }
+import self.lexer
+let nl = rep(tok("newline"))
+fn rules() -> parser.Grammar = grammar("document", [
+  ("document", wrap("document", seq([
+    nl, rep(recover(seq([r("item"), alt([seq([tok("newline"), nl]), ahead(tok("eof"))])])) )
+  ]))),
+  ("item", alt([r("array_table"), r("table"), r("pair")])),
+  ("key_part", alt([tok("identifier"), tok("number"), tok("string")])),
+  ("key", wrap("key", seq([r("key_part"), rep(seq([lit("."), r("key_part")]))]))),
+  ("table", wrap("table", seq([lit("["), field("name", r("key")), lit("]")]))),
+  ("array_table", wrap("array_table", seq([lit("["), lit("["), field("name", r("key")), lit("]"), lit("]")]))),
+  ("pair", wrap("pair", seq([field("name", r("key")), lit("="), field("value", r("value"))]))),
+  ("value", alt([tok("string"), tok("number"), wrap("boolean", lits(["true", "false"])), wrap("special_float", lits(["inf", "nan"])), r("array"), r("inline_table")])),
+  ("array", wrap("array", seq([lit("["), nl, opt(seq([r("value"), nl, rep(seq([lit(","), nl, r("value"), nl])), opt(lit(",")), nl])), lit("]")]))),
+  ("inline_table", wrap("inline_table", seq([lit("{"), opt(seq([r("pair"), rep(seq([lit(","), r("pair")]))])), lit("}")]))),
+])
+fn parses(src: String) -> Bool = match lexer.scan(src, false) {
+  ok(tokens) => result.is_ok(parser.parse(rules(), bytes.from_string(src), tokens)),
+  err(_) => false,
+}
+test "TOML tables arrays dotted keys and multiline literals" {
+  assert(parses("title = \"demo\"\n[owner]\nname = '日本語'\nborn = 1979-05-27T07:32:00Z\n[database]\nports = [8000,\n 8001,]\nenabled = true\nsettings = { mode = \"fast\", retries = 3 }\n[[products]]\nname = \"one\"\n"))
+  assert(parses("a.b = 1\n\"quoted.key\" = \"\"\"line 1\nline 2\"\"\"\nraw = '''C:\\path\\to\\file'''"))
+  assert(parses(""))
+}
+test "TOML grammar rejects missing delimiters assignments and values" {
+  for bad in ["x 1\n", "x =\n", "[table\nx = 1\n", "x = [1 2]\n", "x = {a = 1,}\n", "x = unquoted\n", "x = true y = false\n"] { assert(not parses(bad)) }
+}
