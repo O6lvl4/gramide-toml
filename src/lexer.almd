@@ -2,7 +2,7 @@
 // and calendar semantics are intentionally outside this reader's contract.
 import gramide.lex
 import gramide.tree
-fn at(src: Bytes, i: Int) -> Int = bytes.get_or(src, i, -1)
+fn at(src: Bytes, i: Int) -> Int = bytes.get(src, i) ?? -1
 fn digit(b: Int) -> Bool = b >= 48 and b <= 57
 fn word(b: Int) -> Bool = digit(b) or (b >= 65 and b <= 90) or (b >= 97 and b <= 122) or b == 95 or b == 45
 fn hex(b: Int) -> Bool = digit(b) or (b >= 65 and b <= 70) or (b >= 97 and b <= 102)
